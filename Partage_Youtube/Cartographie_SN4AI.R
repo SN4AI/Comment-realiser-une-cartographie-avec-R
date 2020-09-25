@@ -1,28 +1,28 @@
 #********************************** Cartographie sur R *******************************
 
 #####################################################
-# Projet : Analyse COVID-19 au Sénégal: partie 1    #
+# Projet : Analyse COVID-19 au SÃ©nÃ©gal: partie 1    #
 # Auteur : Ousmane Sy Bodian,                       #
-# Profil : Ingénieur statisticien, Data scientist   # 
-# Date début : 04/09/2020                           #
+# Profil : IngÃ©nieur statisticien, Data scientist   # 
+# Date dÃ©but : 25/09/2020                           #
 #####################################################
 
 
 #----------------------- Librairies requises dans ce projet ----------------------
 
-# Chargement des packages pour les données géométriques
+# Chargement des packages pour les donnÃ©es gÃ©omÃ©triques
 
 #*** Pour installer les packages
 install.packages("tidyverse", dependencies = TRUE)
 install.packages("sf", dependencies = TRUE)
 #..................................................
 
-# Vous faites la même chose pour le reste des packages 
+# Vous faites la mÃªme chose pour le reste des packages 
 
 
 #***--- Chargement des librairies 
 library(tidyverse) # tidyverse data visualization package
-library(sf)        # Permet de lire les données géométriques
+library(sf)        # Permet de lire les donnÃ©es gÃ©omÃ©triques
 library(raster)    # Le fichier 'shapefile'
 # Les packages de visualisation
 library(tmap)      # for static and interactive maps
@@ -35,26 +35,26 @@ library(shiny)     # for web applications
 
 
 
-#---------------------- Importation de la base de données -----------------------
+#---------------------- Importation de la base de donnÃ©es -----------------------
 
 
-# La base de données est mis à jours tous les jours
-# Celle que nous affichons ici a été télécharger le 30-08-2020
+# La base de donnÃ©es est mis Ã  jours tous les jours
+# Celle que nous affichons ici a Ã©tÃ© tÃ©lÃ©charger le 30-08-2020
 
 
-# Jeux de données 'regions_cas18-08-2020' : 
-# Nbre de cas confirmés du covid selon la région
+# Jeux de donnÃ©es 'regions_cas18-08-2020' : 
+# Nbre de cas confirmÃ©s du covid selon la rÃ©gion
 region <- read.csv("regions_cas_30-08-2020.csv", header = T, sep = ",") 
 
 # Structure des variables
 str(region)
 
 
-#----------------------- Reconstitution de la base de données --------------------
+#----------------------- Reconstitution de la base de donnÃ©es --------------------
 
 
-# Renommer le nom des régions en format 'nom de famille'
-# Càd la première lettre en Majuscule et le reste en minuscule
+# Renommer le nom des rÃ©gions en format 'nom de famille'
+# CÃ d la premiÃ¨re lettre en Majuscule et le reste en minuscule
 names(region) <- str_to_title(names(region))   
 
 # Consultons la structure des variables
@@ -62,11 +62,11 @@ str(region)
 
 
 
-#*** Renommer les noms de région avec un accent
-names(region)[7] <- "Kédougou"
+#*** Renommer les noms de rÃ©gion avec un accent
+names(region)[7] <- "KÃ©dougou"
 names(region)[11] <- "Saint-Louis"
-names(region)[12] <- "Sédhiou"
-names(region)[14] <- "Thiès"
+names(region)[12] <- "SÃ©dhiou"
+names(region)[14] <- "ThiÃ¨s"
 
 # Consultons la structure des variables
 str(region)
@@ -74,11 +74,11 @@ str(region)
 
 
 
-# Objectif dans cette partie est de faire comprendre à R 
+# Objectif dans cette partie est de faire comprendre Ã  R 
 # que la variable 'Date' est de type 'date' et non une variable 
-# catégorielle comme le fait croire R
+# catÃ©gorielle comme le fait croire R
 
-# Pour y remédier on utilise la fonction de parsing 'as.POSIXct()'
+# Pour y remÃ©dier on utilise la fonction de parsing 'as.POSIXct()'
 # qui permet de convertir cette variable en classe 'date'
 
 
@@ -88,18 +88,18 @@ region <- region %>%
   mutate(Date = as.POSIXct(Date)) %>%
   arrange(Date)
 
-# Vérification de la structure de date
+# VÃ©rification de la structure de date
 str(region) 
 
 
 
 
-#*** Extraction du nbre cummulé de cas confirmés
+#*** Extraction du nbre cummulÃ© de cas confirmÃ©s
 
-# le Nre cumulés de cas 'confirmés' du covid
+# le Nre cumulÃ©s de cas 'confirmÃ©s' du covid
 confirmes <- region[region$Date == max(region$Date),][-1]
 
-# Convertissons ce vecteur en valeur entières
+# Convertissons ce vecteur en valeur entiÃ¨res
 confirmes2 <- as.integer(confirmes)
 
 # Regroupons le vecteur 'Regions' et ' confirmes' dans une seule base en colonnes
@@ -111,12 +111,12 @@ covid19_region <- data.frame(Regions = as.character(names(confirmes)), confirmes
 #--------------------------- Importation du 'fichier shapefile -----------------------
 
 # Un fichier 'shapefile' est le fichier qui contient les formes 
-# géométrique de la carte. 
+# gÃ©omÃ©trique de la carte. 
 # Entre autres, c'est le fichier qui contient les positions
-# géographiques cad les latitudes et les longitudes
+# gÃ©ographiques cad les latitudes et les longitudes
 
 
-# Shapefiles du Sénégal avec les 14 régions administratives
+# Shapefiles du SÃ©nÃ©gal avec les 14 rÃ©gions administratives
 # site : http://www.diva-gis.org/gdata
 
 senegal <- st_read("SEN_adm1.shp", layer = "SEN_adm1", stringsAsFactors = F)
@@ -125,46 +125,46 @@ senegal <- st_read("SEN_adm1.shp", layer = "SEN_adm1", stringsAsFactors = F)
 #--------------------------- Reconstitution du 'fichier shapefile' ----------------------
 
 # Dans le fichier shapefiles, nous avons besoin que deux variables
-# le nom des régions et les données géographiques
+# le nom des rÃ©gions et les donnÃ©es gÃ©ographiques
 
-# On crée une nouvelle variable
-# qui va contenir le nom des régions
+# On crÃ©e une nouvelle variable
+# qui va contenir le nom des rÃ©gions
 senegal$ID <- senegal$NAME_1
 
-# Restreindre le jeux de données 'senegal' à deux variables
-# les régions et les données géométriques
+# Restreindre le jeux de donnÃ©es 'senegal' Ã  deux variables
+# les rÃ©gions et les donnÃ©es gÃ©omÃ©triques
 senegal <- senegal[c(11, 10)]
 
 
-#********** Fusion entre les données Géographiques 'senegal' 
-# et le jeux de données 'covid19_region'
+#********** Fusion entre les donnÃ©es GÃ©ographiques 'senegal' 
+# et le jeux de donnÃ©es 'covid19_region'
 MapDataCovid <- inner_join(senegal, covid19_region, by = c("ID" = "Regions")) 
 
 
-# Attention!!! car les commandes qui générent la carte
+# Attention!!! car les commandes qui gÃ©nÃ©rent la carte
 # ne prennent que les objets 'sf'
-# Vérifions la classe
+# VÃ©rifions la classe
 class(MapDataCovid)
 
 
 
-# A présent tout est OK pour Visualiser les carte
+# A prÃ©sent tout est OK pour Visualiser les carte
 
 
 
 #----------------------------------- Visualisation des Cartes --------------------------------
 
 
-#------------------************* Les cartes à ronds proportionnels ************--------------
+#------------------************* Les cartes Ã  ronds proportionnels ************--------------
 
 # Librairie
 library(ggplot2)
 
 
-#*****----------- Première Catre avec 'ggplot' --------------
+#*****----------- PremiÃ¨re Catre avec 'ggplot' --------------
 
 
-# Etape 1 : Première carte basique
+# Etape 1 : PremiÃ¨re carte basique
 ggplot(MapDataCovid) +
   geom_sf(aes(fill = confirmes))
 
@@ -178,15 +178,15 @@ ggplot(MapDataCovid) +
 
 
 
-# Etape 2 : Ajout des cercles proportionels aux nbre de cas confirmés
+# Etape 2 : Ajout des cercles proportionels aux nbre de cas confirmÃ©s
 ggplot(MapDataCovid) +
   geom_sf(aes(fill = confirmes)) +
   stat_sf_coordinates(aes(size = confirmes, fill = confirmes), color = "red", 
                       shape = 20, alpha = 0.6)
 
-# size : taille proportionnelle aux nbre de cas confirmés
-# fill : repmlissage de la couleur des régions en fonction du nbre de cas confirmés
-# shape : la forme , 20 = cercle  et 22 = carré
+# size : taille proportionnelle aux nbre de cas confirmÃ©s
+# fill : repmlissage de la couleur des rÃ©gions en fonction du nbre de cas confirmÃ©s
+# shape : la forme , 20 = cercle  et 22 = carrÃ©
 # alpha : la transparence des cercles rouges (saturation)
 
 
@@ -197,16 +197,16 @@ ggplot(MapDataCovid) +
 
 
 
-# Etape 3 : Modification à l'échelle gradient du repmlissage des couleurs :  
+# Etape 3 : Modification Ã  l'Ã©chelle gradient du repmlissage des couleurs :  
 ggplot(MapDataCovid) +
   geom_sf(aes(fill = confirmes)) +
   stat_sf_coordinates(aes(size = confirmes, fill = confirmes), color = "red",
                       shape = 20, alpha = 0.6) +
-  scale_fill_gradient2(name = "Nbre de cas confirmés", low = "lightcyan",
+  scale_fill_gradient2(name = "Nbre de cas confirmÃ©s", low = "lightcyan",
                        mid = "slategray1", high = "darkred")
 
-# couleur claire quand le nbre de cas confirmés est faible ;
-# couleur rouge sombre quand le nbre de cas confirmés est élevé
+# couleur claire quand le nbre de cas confirmÃ©s est faible ;
+# couleur rouge sombre quand le nbre de cas confirmÃ©s est Ã©levÃ©
 
 
 
@@ -220,9 +220,9 @@ ggplot(MapDataCovid) +
   geom_sf(aes(fill = confirmes)) +
   stat_sf_coordinates(aes(size = confirmes, fill = confirmes), color = "red",
                       shape = 20, alpha = 0.6) +
-  scale_fill_gradient2(name = "Nbre de cas confirmés", low = "lightcyan",
+  scale_fill_gradient2(name = "Nbre de cas confirmÃ©s", low = "lightcyan",
                        mid = "slategray1", high = "darkred") +
-  scale_size_area(name = "confirmés", max_size = 25)
+  scale_size_area(name = "confirmÃ©s", max_size = 25)
 
 
 
@@ -234,25 +234,25 @@ ggplot(MapDataCovid) +
   geom_sf(aes(fill = confirmes)) +
   stat_sf_coordinates(aes(size = confirmes, fill = confirmes), color = "red",
                       shape = 20, alpha = 0.6) +
-  scale_fill_gradient2(name = "Nbre de cas confirmés", low = "lightcyan",
+  scale_fill_gradient2(name = "Nbre de cas confirmÃ©s", low = "lightcyan",
                        mid = "slategray1", high = "darkred") +
-  scale_size_area(name = "confirmés", max_size = 25) +
-  ggtitle("Nombre de cas Confirmés au Sénégal\n jusqu'à ce jour 30 Août 2020") +
+  scale_size_area(name = "confirmÃ©s", max_size = 25) +
+  ggtitle("Nombre de cas ConfirmÃ©s au SÃ©nÃ©gal\n jusqu'Ã  ce jour 30 AoÃ»t 2020") +
   theme_minimal() # theme du fond
 
 
 
 
 
-# Etape 6 : Ajout de l'étiquette des différentes régions administratives
+# Etape 6 : Ajout de l'Ã©tiquette des diffÃ©rentes rÃ©gions administratives
 ggplot(MapDataCovid) +
   geom_sf(aes(fill = confirmes)) +
   stat_sf_coordinates(aes(size = confirmes, fill = confirmes), color = "red",
                       shape = 20, alpha = 0.6) +
-  scale_fill_gradient2(name = "confirmés", low = "lightcyan",
+  scale_fill_gradient2(name = "confirmÃ©s", low = "lightcyan",
                        mid = "slategray1", high = "darkred") +
-  scale_size_area(name = "confirmés", max_size = 25) +
-  ggtitle("Nombre de cas Confirmés au Sénégal\n jusqu'à ce jour 30 Août 2020") +
+  scale_size_area(name = "confirmÃ©s", max_size = 25) +
+  ggtitle("Nombre de cas ConfirmÃ©s au SÃ©nÃ©gal\n jusqu'Ã  ce jour 30 AoÃ»t 2020") +
   theme_minimal() +
   geom_sf_text(aes(label = ID), vjust = -0.5, check_overlap = T,
                fontface = "italic", colour = "black")
@@ -263,8 +263,8 @@ ggplot(MapDataCovid) +
 
 # Etape 7 :
 
-#------- Ajoutons le Nbre de cas confirmés au nom des régions
-# Région + Nbre de cas
+#------- Ajoutons le Nbre de cas confirmÃ©s au nom des rÃ©gions
+# RÃ©gion + Nbre de cas
 
 MapDataCovid <- MapDataCovid %>%
   mutate(char1 = as.character(ID),
@@ -276,10 +276,10 @@ ggplot(MapDataCovid) +
   geom_sf(aes(fill = confirmes)) +
   stat_sf_coordinates(aes(size = confirmes, fill = confirmes), color = "red",
                       shape = 20, alpha = 0.6) +
-  scale_fill_gradient2(name = "confirmés", low = "lightcyan",
+  scale_fill_gradient2(name = "confirmÃ©s", low = "lightcyan",
                        mid = "slategray1", high = "darkred") +
-  scale_size_area(name = "confirmés", max_size = 25) +
-  ggtitle("Nombre de cas Confirmés au Sénégal\n jusqu'à ce jour 18 Août 2020") +
+  scale_size_area(name = "confirmÃ©s", max_size = 25) +
+  ggtitle("Nombre de cas ConfirmÃ©s au SÃ©nÃ©gal\n jusqu'Ã  ce jour 18 AoÃ»t 2020") +
   theme_minimal() +
   geom_sf_text(aes(label = ID2), vjust = -0.5, check_overlap = T,
                fontface = "italic", colour = "black")
@@ -292,22 +292,22 @@ ggplot(MapDataCovid) +
 
 
 
-# Etape 8 : Elimination des axes et de leurs étiquettes
+# Etape 8 : Elimination des axes et de leurs Ã©tiquettes
 ggplot(MapDataCovid) +
   geom_sf(aes(fill = confirmes)) +
   stat_sf_coordinates(aes(size = confirmes, fill = confirmes), color = "red",
                       shape = 20, alpha = 0.6) +
-  scale_fill_gradient2(name = "confirmés", low = "lightcyan",
+  scale_fill_gradient2(name = "confirmÃ©s", low = "lightcyan",
                        mid = "slategray1", high = "darkred") +
-  scale_size_area(name = "confirmés", max_size = 25) +
-  ggtitle("Nombre de cas Confirmés au Sénégal\n jusqu'à ce jour 30 Août 2020") +
+  scale_size_area(name = "confirmÃ©s", max_size = 25) +
+  ggtitle("Nombre de cas ConfirmÃ©s au SÃ©nÃ©gal\n jusqu'Ã  ce jour 30 AoÃ»t 2020") +
   theme_minimal() +
   geom_sf_text(aes(label = ID2), vjust = -0.5, check_overlap = T,
                fontface = "italic", colour = "black") +
-  theme(axis.title.x = element_blank(), # Supprimer l'étiquette de l'axe des X
-        axis.title.y = element_blank(), # Supprimer l'étiquette de l'axe des Y
+  theme(axis.title.x = element_blank(), # Supprimer l'Ã©tiquette de l'axe des X
+        axis.title.y = element_blank(), # Supprimer l'Ã©tiquette de l'axe des Y
         axis.text = element_blank(),    # Supprimer les axes des X et Y
-        legend.position = "bottom")     # Position de la légende en bas
+        legend.position = "bottom")     # Position de la lÃ©gende en bas
 
 
 
@@ -318,7 +318,7 @@ ggplot(MapDataCovid) +
 
 
 
-#*****-------------------------- Deuxième Catre (Interactive) avec 'tm_shape()' --------------------------------
+#*****-------------------------- DeuxiÃ¨me Catre (Interactive) avec 'tm_shape()' --------------------------------
 
 # Avec la librairie tmap
 library(tmap) # for static and interactive maps
@@ -327,7 +327,7 @@ library(tmap) # for static and interactive maps
 
 
 
-# Etape 1 : Importation de la carte du Sénégal
+# Etape 1 : Importation de la carte du SÃ©nÃ©gal
 tm_shape(MapDataCovid) + 
   tm_polygons()
 
@@ -336,7 +336,7 @@ tm_shape(MapDataCovid) +
 
 
 
-# Etape 2 : Remplissage des régions selon le nbr de cas confirmés
+# Etape 2 : Remplissage des rÃ©gions selon le nbr de cas confirmÃ©s
 tm_shape(MapDataCovid) + 
   tm_polygons("confirmes")
 # Rendre interractive la Carte
@@ -349,10 +349,10 @@ tmap_last()
 
 
 
-# Etape 3 : Ajout de paramètres (arguments)
+# Etape 3 : Ajout de paramÃ¨tres (arguments)
 tm_shape(MapDataCovid) + 
   tm_polygons("confirmes", id = "ID2",
-              title="Nombre de cas Confirmés") 
+              title="Nombre de cas ConfirmÃ©s") 
 
 # title : Titre
 
@@ -366,12 +366,12 @@ tm_shape(MapDataCovid) +
 
 # Etape 4 : Modification de l'echelle de remplissage des couleurs
 
-# Notre propre échelle
+# Notre propre Ã©chelle
 breaks = c(0, 0.5, 1, 2, 4, 5, 10, 20, 80, 90) * 100
 # Carte
 tm_shape(MapDataCovid) + 
   tm_polygons("confirmes", id = "ID2",
-              title="Nombre de cas Confirmés", 
+              title="Nombre de cas ConfirmÃ©s", 
               breaks = breaks)
 
 # breaks : permet de changer l'echelle de remplissage des couleurs
@@ -387,16 +387,14 @@ tm_shape(MapDataCovid) +
 
 
 
-# Etape 5 : Ajout de l'étiquette des noms de régions
+# Etape 5 : Ajout de l'Ã©tiquette des noms de rÃ©gions
 tm_shape(MapDataCovid) + 
   tm_polygons("confirmes", id = "ID2",
-              title="Nombre de cas Confirmés", 
+              title="Nombre de cas ConfirmÃ©s", 
               breaks = breaks) +
-  tm_text("ID2", scale = 1.3, shadow = T)  # ajout des noms de région
+  tm_text("ID2", scale = 1.3, shadow = T)  # ajout des noms de rÃ©gion
 
-# scale : taille de la police de caratères
-
-
+# scale : taille de la police de caratÃ¨res
 
 
 
@@ -407,15 +405,17 @@ tm_shape(MapDataCovid) +
 
 
 
-# Etape 6 : Ajout de cercles à rond proportionnel aux nbr de cas confirmés
+
+
+# Etape 6 : Ajout de cercles Ã  rond proportionnel aux nbr de cas confirmÃ©s
 tm_shape(MapDataCovid) + 
   tm_polygons("confirmes", id = "ID2",
-              title="Nombre de cas Confirmés", 
+              title="Nombre de cas ConfirmÃ©s", 
               breaks = breaks) +
   tm_text("ID2", scale = 1.3, shadow = T) +
   tm_bubbles(size = "confirmes", col = "red", alpha = .5, scale = 5, shape = 20)
 
-# size : taille suivant le nbr de cas confirmés
+# size : taille suivant le nbr de cas confirmÃ©s
 # alpha : la transparence ou saturation
 # shape = 20 : pour la forme ciculaire
 
